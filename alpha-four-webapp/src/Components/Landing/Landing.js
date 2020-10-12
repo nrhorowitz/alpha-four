@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import NavBar from '../Routes/NavBar';
+import { withRouter } from 'react-router';
 
 class Landing extends React.Component {
     constructor(props) {
@@ -10,9 +12,16 @@ class Landing extends React.Component {
     }
 
     render() {
-        const { device } = this.props;
+        const { currentUser, device, router, firebase } = this.props;
         return (
-            <div>Landing</div>
+            <div>
+                <NavBar
+                    firebase={firebase}
+                    currentUser={currentUser}
+                    device={device}
+                    router={router} />
+                TODO Landing
+            </div>
         )
     }
 }
@@ -21,4 +30,4 @@ Landing.propTypes = {
     device: PropTypes.string,
 };
 
-export default Landing;
+export default withRouter(Landing);

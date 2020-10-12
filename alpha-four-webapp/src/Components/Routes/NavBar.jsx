@@ -1,37 +1,45 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { AppBar, Button, Toolbar, Typography, InputBase, Grid} from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import { AppBar, Button, Toolbar, Typography, Grid} from '@material-ui/core';
 import './Routes.scss';
 
 class NavBar extends React.Component {
-    changeRoute = (pathname, search) => {
-        this.props.router.history.push({
-            pathname: pathname,
-            search: search,
-        })
+    changeRoute = (type) => {
+        if (type === 'login') {
+            this.props.router.history.push({
+                pathname: 'login',
+                search: 'step=login',
+            });
+        } else if (type === 'landing') {
+            this.props.router.history.push({ pathname: '' });
+        }
     }
 
+    logout = () => {
+        this.props.firebase.auth().signOut().then(() => {
+            this.changeRoute('landing');
+        }).catch((error) => {
+            console.log(error)
+        });
+    }
+    
     renderAuth() {
-        //todo pull data
-        const username = "TODO USERNAME";
-        if (this.props.currentUser !== undefined) {
-            return <Button color="inherit" variant="outlined">Login</Button>
+        if (this.props.currentUser === null) {
+            return <Button color="inherit" variant="outlined" onClick={() => this.changeRoute('login')}>Login</Button>
         } else {
             return (
                 <Grid container justify="flex-end">
                     <div className="navbar-name-container">
-                        <Typography variant="h6">{username}</Typography>
+                        <Typography variant="h6">{this.props.currentUser.username}</Typography>
                     </div>
-                    <Button color="inherit" variant="outlined">Logout</Button>
+                    <Button color="inherit" variant="outlined" onClick={() => this.logout()}>Logout</Button>
                 </Grid>
             )
         }
     }
 
     render() {
-        const { device, router } = this.props;
         return (
             <AppBar position="static">
                 <Toolbar>
