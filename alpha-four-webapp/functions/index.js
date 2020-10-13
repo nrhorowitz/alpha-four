@@ -1,12 +1,46 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp();
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
-exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/connect-four/{mode}/{uid}').onCreate((snapshot, context) => {
-    console.log(context.params.mode, context.params.uid);
-    console.log(snapshot.val());
-    const roomkey = 'roomkeyjaja';
-    return snapshot.ref.parent.parent.child('roomkey').set(roomkey);
+const app = admin.initializeApp();
+exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/connect-four/ranked/{uid}').onCreate((snapshot, context) => {
+    app.database().ref('match-making/connect-four/ranked').once('value').then((snap) => {
+        const queue = snap.val();
+        const keys = Object.keys(queue);
+        if (keys.length >= 2) {
+            const otherkey = (keys[0] === context.params.uid) ? keys[1] : keys[0];
+            const roomsRef = snapshot.ref.parent.parent.child('rooms');
+            const roomkey = roomsRef.push().getKey();
+            const roomkeydata = {
+                [context.params.uid]: roomkey,
+                [otherkey]: roomkey,
+            };
+            const roomData = {
+                'metadata': {
+                    'todotimestamp1': 'dog',
+                    'ranked': true,
+                    'mmr': 'todommr',
+                },
+                'permissions': {
+                    [context.params.uid]: true,
+                    [otherkey]: true,
+                },
+                'requests': {
+                    'todorequest1': 'dog',
+                },
+                'moves': {
+                    'todomove1': 'dog',
+                },
+            };
+            app.database().ref('match-making/connect-four/rooms').set({ [roomkey]: roomData });
+            app.database().ref('match-making/connect-four/ranked/' + context.params.uid).remove();
+            app.database().ref('match-making/connect-four/ranked/' + otherkey).remove();
+            return app.database().ref('match-making/connect-four/roomkey').set(roomkeydata);
+        } else {
+            return null;
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
 });
