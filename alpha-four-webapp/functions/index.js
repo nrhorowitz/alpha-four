@@ -33,7 +33,7 @@ exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/con
                     'todomove1': 'dog',
                 },
             };
-            app.database().ref('match-making/connect-four/rooms').set({ [roomkey]: roomData });
+            app.database().ref('match-making/connect-four/rooms/' + roomkey).set(roomData);
             app.database().ref('match-making/connect-four/ranked/' + context.params.uid).remove();
             app.database().ref('match-making/connect-four/ranked/' + otherkey).remove();
             return app.database().ref('match-making/connect-four/roomkey').set(roomkeydata);
