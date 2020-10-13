@@ -2,7 +2,7 @@ import firebase from './Firebase';
 
 export const firestoreGet = (collection, document=null) => {
     //TODO: cache
-    console.log("GET")
+    console.log("api: GET")
     const db = firebase.firestore().collection(collection);
     if (document) {
         return db.doc(document).get();
@@ -11,10 +11,42 @@ export const firestoreGet = (collection, document=null) => {
 };
 
 export const firestorePost = (collection, data, document = null) => {
-    console.log('POST')
+    console.log('api: POST')
     const db = firebase.firestore().collection(collection);
     if (document) {
         return db.doc(document).set(data);
     }
     return db.add(data);
+}
+
+export const realTimeEnqueue = (uid, type, mode) => {
+    console.log('api: enqueue')
+    const db = firebase.database().ref('/match-making/' + type + '/' + mode + '/' + uid);
+    return db.set({ [uid]: 'todo' });
+}
+
+export const realTimeDequeue = (uid, type, mode) => {
+    console.log('api: dequeue')
+    const db = firebase.database().ref('match-making/' + type + '/' + mode + '/' + uid);
+    return db.remove();
+}
+
+export const realTimeCreateRoomKeyListener = (uid, type, f) => {
+    console.log('api: createroomkeylistener');
+    const db = firebase.database().ref('match-making/' + type + '/roomkey/' + uid);
+    db.on('value', (snapshot) => {
+        f(snapshot.exists(), snapshot.val());
+    });
+}
+
+export const realTimeRemoveRoomKeyListener = (uid, type) => {
+    console.log('api: removeroomkeylistener');
+    const db = firebase.database().ref('match-making/' + type + '/roomkey/' + uid);
+    db.off();
+}
+
+export const realTimeClearRoomKey = (uid, type) => {
+    console.log('api: clearroomkey');
+    const db = firebase.database().ref('match-making/' + type + '/roomkey/' + uid);
+    return db.remove();
 }
