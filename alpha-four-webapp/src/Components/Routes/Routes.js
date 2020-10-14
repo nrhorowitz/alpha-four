@@ -10,6 +10,7 @@ import NotFound from '../NotFound/NotFound';
 import Login from '../Login/Login';
 import Test from '../Landing/Test';
 import Loading from '../Loading/Loading';
+import Room from '../Room/Room';
 import firebase from '../Firebase/Firebase';
 import { firestoreGet } from '../Firebase/api';
 import './Routes.scss';
@@ -46,6 +47,8 @@ class Routes extends React.Component {
             return <Landing device={device} router={router} firebase={firebase} currentUser={currentUser}/>
         } else if (component === 'Login') {
             return <Login device={device} router={router} firebase={firebase} currentUser={currentUser}/>
+        } else if (component === 'Room') {
+            return <Room device={device} router={router} firebase={firebase} currentUser={currentUser}/>
         } else if (component === 'Test') {
             return <Test device={device} router={router} firebase={firebase} currentUser={currentUser}/>
         }
@@ -61,6 +64,7 @@ class Routes extends React.Component {
                     <Route exact path="/" component={(router) => this.renderComponent('Landing', router)}/>
                     <Route path="/login" component={(router) => this.renderComponent('Login', router)}/>
                     <Route path="/test" component={(router) => this.renderComponent('Test', router)} />
+                    <Route path="/room" component={(router) => this.renderComponent('Room', router)} />
                     <Route path="/">
                         <NotFound />
                     </Route>

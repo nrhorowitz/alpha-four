@@ -50,3 +50,37 @@ export const realTimeClearRoomKey = (uid, type) => {
     const db = firebase.database().ref('match-making/' + type + '/roomkey/' + uid);
     return db.remove();
 }
+
+export const realTimeCreateRoomMetaListener = (uid, f) => {
+    console.log('api: createroommetalistener');
+    const db = firebase.database().ref('rooms/' + uid + '/metadata');
+    db.on('value', (snapshot) => {
+        f(snapshot.exists(), snapshot.val());
+    });
+}
+
+export const realTimeRemoveRoomMetaListener = (uid) => {
+    console.log('api: removeroommetalistener');
+    const db = firebase.database().ref('rooms/' + uid + '/metadata');
+    db.off();
+}
+
+export const realTimeCreateRoomMovesListener = (uid, f) => {
+    console.log('api: createroommoveslistener');
+    const db = firebase.database().ref('rooms/' + uid + '/moves');
+    db.on('value', (snapshot) => {
+        f(snapshot.exists(), snapshot.val());
+    });
+}
+
+export const realTimeRemoveRoomMovesListener = (uid) => {
+    console.log('api: removeroommoveslistener');
+    const db = firebase.database().ref('rooms/' + uid + '/moves');
+    db.off();
+}
+
+export const realTimeSubmitMoveRequest = (uid, rid, params) => {
+    console.log('api: submit move request');
+    const db = firebase.database().ref('/rooms/' + rid + '/requests/' + uid);
+    return db.set(params);
+}

@@ -110,7 +110,10 @@ class Landing extends React.Component {
 }
 
 Landing.propTypes = {
+    currentUser: PropTypes.object,
     device: PropTypes.string,
+    firebase: PropTypes.object,
+    router: PropTypes.object,
 };
 
 export default withRouter(Landing);
