@@ -1,0 +1,37 @@
+.profile-icon-size {
+  width: 100px;
+  height: auto;
+}
+
+.profile-edit-icon {
+  background-color: white;
+  outline: 1px solid black;
+  position: absolute;
+  margin-left: 80px;
+  margin-top: 80px;
+}
+
+.profile-icon-modal-container {
+  position: absolute;
+  width: 70%;
+  height: 60%;
+  background-color: rgb(201, 200, 200);
+  margin-left: 15%;
+  margin-top: 130px;
+  border-radius: 10px;
+}
+
+.profile-icon-modal-icon {
+  margin: 20px;
+}
+
+.profile-icon-modal-icon-selected {
+  margin: 20px;
+  outline: 1px solid red;
+}
+
+.profile-icon-modal-buttons {
+  float: right;
+  bottom: 0;
+  position: absolute;
+}

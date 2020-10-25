@@ -64,7 +64,7 @@ class Login extends React.Component {
         const { email, password, username } = this.state;
         firebase.auth().createUserWithEmailAndPassword(email, password).then((res) => {
             const data = {
-                icon: 'default_icon',
+                icon: 'https://firebasestorage.googleapis.com/v0/b/alpha-four.appspot.com/o/icons%2Fredamongus.png?alt=media&token=98087572-eac2-4980-a2bd-20623bd17ace',
                 mmr: {
                     connect_four: 1200,
                 },
