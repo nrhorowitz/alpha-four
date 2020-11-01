@@ -1,4 +1,5 @@
 import firebase from './Firebase';
+import uuid from 'react-uuid';
 
 export const firestoreGet = (collection, document=null) => {
     //TODO: cache
@@ -82,5 +83,7 @@ export const realTimeRemoveRoomMovesListener = (uid) => {
 export const realTimeSubmitMoveRequest = (uid, rid, params) => {
     console.log('api: submit move request');
     const db = firebase.database().ref('/rooms/' + rid + '/requests/' + uid);
+    //TODO timestamp
+    params['timestamp'] = uuid();
     return db.set(params);
 }

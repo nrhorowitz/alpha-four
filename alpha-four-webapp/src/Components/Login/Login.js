@@ -69,6 +69,7 @@ class Login extends React.Component {
                     connect_four: 1200,
                 },
                 username: username,
+                games: [],
             };
             firestorePost('users', data, res.user.uid).then(() => {
                 router.history.push({

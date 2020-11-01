@@ -1,9 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
 const app = admin.initializeApp();
+
 exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/connect-four/ranked/{uid}').onCreate((snapshot, context) => {
     app.database().ref('match-making/connect-four/ranked').once('value').then((snap) => {
         const queue = snap.val();
@@ -24,6 +22,7 @@ exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/con
                     'ranked': true,
                     'mmr': 'todommr',
                     'status': 'active',
+                    'turn': 0,
                     'type': 'connect-four',
                     'params': {
                         'dimension': '7,7'
@@ -58,43 +57,117 @@ exports.matchMakingConnectFourRanked = functions.database.ref('/match-making/con
     });
 });
 
+const winCondition = (board, moveIndex, dimensions) => {
+    const row = parseInt(dimensions[0]);
+    const column = parseInt(dimensions[1]);
+    const user = board[moveIndex];
+    const rowIndex = Math.floor(moveIndex / column);
+    const columnIndex = moveIndex % column;
+    // horizontal
+    let c = columnIndex;
+    let count = 0;
+    while ((c >= 0) && (board[rowIndex * column + c] === user)) {
+        c -= 1;
+        count += 1;
+    }
+    c = columnIndex;
+    while ((c < column) && (board[rowIndex * column + c] === user)) {
+        c += 1;
+        count += 1;
+    }
+    if (count >= 5) { return true; }
+    // vertical
+    let r = rowIndex;
+    count = 0;
+    while ((r >= 0) && (board[r * column + columnIndex] === user)) {
+        r -= 1;
+        count += 1;
+    }
+    r = rowIndex;
+    while ((r < row) && (board[r * column + columnIndex] === user)) {
+        r += 1;
+        count += 1;
+    }
+    if (count >= 5) { return true; }
+    // diagonal1
+    c = columnIndex;
+    r = rowIndex;
+    count = 0;
+    while ((c >= 0) && (r >= 0) && (board[r * column + c] === user)) {
+        c -= 1;
+        r -= 1;
+        count += 1;
+    }
+    c = columnIndex;
+    r = rowIndex;
+    while ((c < column) && (r < row) && (board[r * column + c] === user)) {
+        c += 1;
+        r += 1;
+        count += 1;
+    }
+    if (count >= 5) { return true; }
+    // diagonal2
+    c = columnIndex;
+    r = rowIndex;
+    count = 0;
+    while ((c >= 0) && (r < row) && (board[r * column + c] === user)) {
+        c -= 1;
+        r += 1;
+        count += 1;
+    }
+    c = columnIndex;
+    r = rowIndex;
+    while ((c < column) && (r >= 0) && (board[r * column + c] === user)) {
+        c += 1;
+        r -= 1;
+        count += 1;
+    }
+    if (count >= 5) { return true; }
+    return null;
+};
 
-exports.handleRequest = functions.database.ref('rooms/{roomId}/requests/{uid}')
-    .onUpdate((change, context) => {
-
-        app.database().ref('rooms/'+context.params.roomId).once('value').then((snap) => {
-            const original = change.after.val();
-            const num_moves = Object.keys(snap.val().moves).length
-            var board = snap.val().moves[num_moves - 1]
-            
-            const turn = (Object.keys(snap.val().moves).length - 1) % 2
-            if (original.user === turn) {
-                boardArr = board.substr(1,board.length-2).split(",")
-                boardArr[original.index] = original.user
-                var newBoard = '[' + boardArr.join(',') + ']'
-                console.log(boardArr)
-                console.log(newBoard)
-                var new_moves = snap.val().moves
-                new_moves[num_moves] = newBoard
-                return app.database().ref("rooms/"+context.params.roomId).set({
-                    moves : new_moves
-                })
+exports.handleMoveRequest = functions.database.ref('rooms/{roomId}/requests/{uid}').onUpdate((snapshot, context) => {
+    app.database().ref('rooms/' + context.params.roomId).once('value').then((snap) => {
+        const request = snapshot.after.val();
+        const gameState = snap.val();
+        const prevBoard = JSON.parse(gameState.moves[Object.keys(gameState.moves).length - 1]);
+        const dimensions = gameState.metadata.params.dimension.split(',');
+        let moveIndex = -1
+        for (let i = request.column + (parseInt(dimensions[0]) - 1) * parseInt(dimensions[1]); i >= 0; i -= parseInt(dimensions[1])) {
+            if (prevBoard[i] === 2) {
+                moveIndex = i;
+                i = -1;
+            }
+        }
+        if ((request.user === gameState.metadata.turn) && (moveIndex !== -1)) {
+            const newBoard = prevBoard;
+            newBoard[moveIndex] = request.user;
+            const updatedMoves = gameState.moves;
+            updatedMoves.push(JSON.stringify(newBoard));
+            app.database().ref('rooms/' + context.params.roomId + '/moves').set(updatedMoves);
+            const win = winCondition(newBoard, moveIndex, dimensions);
+            if (win !== null) {
+                const newMetadata = { ...gameState.metadata, status: 'inactive', winner: request.user };
+                app.database().ref('rooms/' + context.params.roomId + '/metadata').set(newMetadata);
+                const createGameData = {
+                    metadata: newMetadata,
+                    moves: updatedMoves,
+                }
+                return app.firestore().collection('game').add(createGameData);
             } else {
+                app.database().ref('rooms/' + context.params.roomId + '/metadata/turn').set(1 - parseInt(request.user));
                 return null;
             }
-        }).catch((err) => {console.log(err)});
+        } else {
+            return null;
+        }
+    }).catch((err) => {
+        console.log(err);
     });
-const isWon = (board) => {
-    
-}
-exports.handleMove = functions.database.ref('rooms/{roomId}/moves')
-    .onUpdate((change, context) => {
+});
 
-        const moves = change.after.val()
-        const n = 7 //change to make this actually dynamic
-        const currState  = moves[Object.keys(moves).length - 1]
-        const temp = currState.substr(1,currState.length-2).split(",")
-        const board_arr = [];
-        while(temp.length) board_arr.push(temp.splice(0, n));
-
-    });
+exports.recordCompletedGame = functions.firestore.document('game/{gameId}').onCreate((snapshot, context) => {
+    const data = snapshot.data();
+    //todo process win mmr
+    //todo update game completion in profile
+});

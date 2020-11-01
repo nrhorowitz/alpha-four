@@ -7,6 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { withRouter } from 'react-router';
 import './Profile.scss';
 import ProfileIconModal from './ProfileIconModal';
+import MatchHeaders from './MatchHeaders';
 
 class Profile extends React.Component {
     constructor(props) {
@@ -66,7 +67,7 @@ class Profile extends React.Component {
                 </div>}
                 <Grid container>
                     <Grid item xs={3} >
-                        todo: previous matches
+                        todo: badges / friendslist?
                     </Grid>
                     <Grid item xs={6}>
                         <div>
@@ -80,7 +81,9 @@ class Profile extends React.Component {
                         <Typography variant="h6">{currentUser.username}</Typography>
                     </Grid>
                     <Grid item xs={3} >
-                        todo: badges / friendslist?
+                        {(currentUser.games.length === 0)
+                            ? <div>todo: no prev matches</div>
+                            : <MatchHeaders ids={currentUser.games} />}
                     </Grid>
                 </Grid>
             </div>
