@@ -120,18 +120,25 @@ class Room extends React.Component {
         }
         const turn = (this.state.metadata.users[this.state.metadata.turn] === uid);
         const win = (this.state.metadata.users[this.state.metadata.winner] === uid);
+        let color = '';
+        if (win) {
+            color = "player-win";
+        } else if (turn) {
+            color = "player-turn";
+        }
         return (
-            <Grid container direction='row'>
-                <div>
-                    <img src={icon} alt="icon" className="room-icon-size" />
-                </div>
-                <Grid>
-                    <Typography variant="h6">{username}</Typography>
-                    <Typography variant="h6">{mmr}</Typography>
+            <div className={color}>
+                <Grid container direction='row' >
+                    <div>
+                        <img src={icon} alt="icon" className="room-icon-size" />
+                    </div>
+                    <Grid className={color}>
+                        <Typography variant="h6">{username}</Typography>
+                        <Typography variant="h6">{mmr}</Typography>
+                    </Grid>
+        
                 </Grid>
-                { turn && <div>YOUR TURN</div>}
-                { win && <div>WINNER</div>}
-            </Grid>
+            </div>
         )
     }
 
@@ -149,16 +156,15 @@ class Room extends React.Component {
                     currentUser={currentUser}
                     device={device}
                     router={router} />
-                TODO Room
-                {this.state.roomId}
-                {this.state.metadata.status}
-                {this.renderProfile(otherUser)}
-                <Board
-                    colors={{ 0: 'tile red', 1: 'tile blue', 2: 'tile white' }}
-                    data={JSON.parse(moves[moves.length - 1])}
-                    dimension={metadata.params.dimension.split(',')}
-                    onClick={this.boardOnClick} />
-                {this.renderProfile(currentUser.uid)}
+                <div className="room-game">
+                    {this.renderProfile(otherUser)}
+                    <Board
+                        colors={{ 0: 'tile red', 1: 'tile blue', 2: 'tile white' }}
+                        data={JSON.parse(moves[moves.length - 1])}
+                        dimension={metadata.params.dimension.split(',')}
+                        onClick={this.boardOnClick} />
+                    {this.renderProfile(currentUser.uid)}
+                </div>
             </div>
         )
     }

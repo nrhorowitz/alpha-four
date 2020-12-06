@@ -17,6 +17,8 @@ class Profile extends React.Component {
             renderProfileIconModal: false,
             allIcons: [],
             loading: true,
+            games: [],
+            mmr: 0,
         }
     }
 
@@ -26,6 +28,14 @@ class Profile extends React.Component {
             this.setState({ allIcons: data, loading: false });
         }).catch((err) => {
             console.log(err);
+        })
+        firestoreGet('users', this.props.currentUser.uid).then((res) => {
+            const data = res.data();
+            const gamesReduced = data.games.slice(0, 5);
+            this.setState({ games: data.games.slice(0, 5), mmr: data.mmr.connect_four });
+            for (let i = 0; i < data.games.slice(0, 5).length; i += 1) {
+
+            }
         })
     }
 
@@ -81,9 +91,9 @@ class Profile extends React.Component {
                         <Typography variant="h6">{currentUser.username}</Typography>
                     </Grid>
                     <Grid item xs={3} >
-                        {(currentUser.games.length === 0)
+                        {(this.state.games.length === 0)
                             ? <div>todo: no prev matches</div>
-                            : <MatchHeaders ids={currentUser.games} />}
+                            : <MatchHeaders ids={this.state.games} />}
                     </Grid>
                 </Grid>
             </div>

@@ -102,7 +102,6 @@ class Landing extends React.Component {
                     currentUser={currentUser}
                     device={device}
                     router={router} />
-                TODO Landing
                 {this.renderMatchFinder()}
             </div>
         )

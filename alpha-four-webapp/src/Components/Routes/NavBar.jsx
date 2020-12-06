@@ -78,7 +78,7 @@ class NavBar extends React.Component {
                     <Toolbar>
                         <Grid container>
                             <Typography variant="h6">
-                                ALPHA FOUR TODO LOGO
+                                ALPHA FOUR
                             </Typography>
                         </Grid>
                         <Grid container justify="flex-end">
